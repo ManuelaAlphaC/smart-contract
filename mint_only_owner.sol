@@ -51,14 +51,6 @@ contract AVOLAB is ERC721, Ownable {
       _setTokenURI(newId, uri);
       return newId;
    }
- 
-   function withdraw() public onlyOwner {
-      (bool success, ) = payable(msg.sender).call{
-          value: address(this).balance
-      }("");
-      require(success);
-   }
- 
 }
 
 //before to deploy your smart contract concerns the dependencies,
