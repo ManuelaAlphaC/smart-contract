@@ -1,8 +1,15 @@
 pragma solidity 0.7.5;
 
 import "./avoOwnable.sol";
+import "./avoDestroyable.sol";
 
-contract Bank is avoOwnable {
+interface GovernmentInterface {
+    function addTransaction(address _from, address _to, uint _amount) external;
+}
+
+contract Bank is avoOwnable, avoDestroyable {
+
+    GovernmentInterface governmentInstance = GovernmentInterface(0x5FD6eB55D12E759a21C09eF703fe0CBa1DC9d88D);
     mapping(address => uint) balance;
 
     event depositDone(uint amount, address indexed depositedTo);
@@ -17,20 +24,21 @@ contract Bank is avoOwnable {
         return balance[msg.sender];
     }
 
-// solo il proprietario del contratto può ritirare i fondi
-// pensato per applicare onlyOwner
-    function withraw(uint amount) public onlyOwner returns (uint){
+    function withraw(uint amount) public returns (uint){
         require(balance[msg.sender] >= amount, "You cannot withdraw more than you have");
         msg.sender.transfer(amount);
+        balance[msg.sender]-= amount;
         return balance[msg.sender];
     }
   
-    function transfer(address to, uint amount) public {
+    function transfer(address recipient, uint amount) public {
         require(balance[msg.sender] >= amount, "Insufficient balance");
-        require(msg.sender != to, "Don't transfer money to yourself");
+        require(msg.sender != recipient, "Don't transfer money to yourself");
 
         uint previousSenderBalance = balance[msg.sender];
-        _transfer(msg.sender, to, amount);
+        _transfer(msg.sender, recipient, amount);
+
+        governmentInstance.addTransaction(msg.sender, recipient, amount);
 
         assert(balance[msg.sender] == previousSenderBalance - amount);
     }
