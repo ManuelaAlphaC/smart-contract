@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.15;
 
+// @author Manuelita
+
 import "erc721a/contracts/ERC721A.sol";
 import "erc721a/contracts/extensions/ERC721ABurnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -30,7 +32,7 @@ contract MYGDA is ERC721A, Ownable, ERC2981, ERC721ABurnable, ReentrancyGuard {
     
     address public royaltyToMembers;
 
-    mapping(uint256 => bool) public userLevelUp;
+    mapping(uint256 => bool) private userIsLevelUp;
     mapping(address => bool) public isWlMember;
 
     constructor(
@@ -62,18 +64,18 @@ contract MYGDA is ERC721A, Ownable, ERC2981, ERC721ABurnable, ReentrancyGuard {
   // ------If the user levels up in the MYGDA app, his nft will be updated------
     function setUserIsLevelUp(uint256 tokenID, bool isLevelUp) public onlyOwner {
         require(!_exists(tokenID),"Nonexistent token");
-        userLevelUp[tokenID] = isLevelUp;
+        userIsLevelUp[tokenID] = isLevelUp;
     }
    
-   /* -----------Pausable contract------------
+   // -----------Pausable contract------------
     function pause() public onlyOwner {
-        _pause();
+        pause();
     }
 
     function unpause() public onlyOwner {
-        _unpause();
+        unpause();
     }
-  */
+  //
 
   // ===============Internal functions===================
     function _startTokenId() internal view virtual override returns (uint256) {
@@ -83,8 +85,25 @@ contract MYGDA is ERC721A, Ownable, ERC2981, ERC721ABurnable, ReentrancyGuard {
     function _baseURI() internal view virtual override returns (string memory) {
         return '';
     }
-  //
   
+  // ==========================Royalty============================
+   /**
+     * @dev Update the royalty percentage (500 = 5%)
+     */
+    function setRoyaltyInfo(uint96 newRoyaltyPercentage) public onlyOwner {
+        _setDefaultRoyalty(royaltyToMembers, newRoyaltyPercentage);
+    }
+
+   /**
+     * @dev Update the royalty wallet address
+     */
+    function setRoyaltyToMembers(address payable newAddress) public onlyOwner {
+        require(newAddress == address(0), "Royalty To Members address cannot be 0");
+        royaltyToMembers = newAddress;
+    }
+
+
+
     function tokenURI(uint256 tokenID) public view virtual override returns (string memory) {
         require(_exists(tokenID), "ERC721Metadata: URI query for nonexistent token");
         string memory baseURI = userLevelUp[tokenID] ? levelUpURI : postRevealURI;
