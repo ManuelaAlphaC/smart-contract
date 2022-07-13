@@ -12,9 +12,11 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MYGDA is ERC721A, Ownable, ERC2981, ERC721ABurnable, ReentrancyGuard {
     using SafeMath for uint256;
+    using Strings for uint256;
 
  // ==============VARIABLES================ //
     uint256 public MAX_SUPPLY = 10000;
@@ -25,7 +27,8 @@ contract MYGDA is ERC721A, Ownable, ERC2981, ERC721ABurnable, ReentrancyGuard {
     string public preRevealURI; // done
     string public postRevealURI;  // done
     string public levelUpURI;  // done
-
+    
+    bool public reveal = false;
     bool public isMembersMint = true; // 1
     bool public isWlistMint = false;  // 2
     bool public isPublicMint = false; // 3
@@ -44,12 +47,19 @@ contract MYGDA is ERC721A, Ownable, ERC2981, ERC721ABurnable, ReentrancyGuard {
     }
 
  // =====================Only Owner============================ //
+    function setRevealed(bool _isReveal) public onlyOwner {
+        reveal = _isReveal;
+    }
+
     function setPreRevealURI(string memory newPreReveal) public onlyOwner {
         preRevealURI = newPreReveal;
     }
 
-    function setPostRevealURIs(string memory newPostRevealURI, string memory newLevelUpURI) public onlyOwner {
+    function setPostRevealURIs(string memory newPostRevealURI) public onlyOwner {
         postRevealURI = newPostRevealURI;
+    }
+
+    function setLevelUpURI(string memory newLevelUpURI) public onlyOwner {
         levelUpURI = newLevelUpURI;
     }
 
@@ -82,10 +92,24 @@ contract MYGDA is ERC721A, Ownable, ERC2981, ERC721ABurnable, ReentrancyGuard {
         return 1;
     }
 
-    function _baseURI() internal view virtual override returns (string memory) {
-        return '';
+    function tokenURI(uint256 tokenID) public view virtual override(ERC721A, IERC721A) returns (string memory) {
+        require(_exists(tokenID), "ERC721Metadata: URI query for nonexistent token");
+        string memory baseURI = userIsLevelUp[tokenID] ? levelUpURI : postRevealURI;
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, _toString(tokenID))) : preRevealURI;
     }
-  
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(IERC721A, ERC721A, ERC2981)
+        returns (bool)
+    {
+        return
+            ERC2981.supportsInterface(interfaceId) ||
+            super.supportsInterface(interfaceId);
+    }
+
+
   // ==========================Royalty============================
    /**
      * @dev Update the royalty percentage (500 = 5%)
@@ -100,25 +124,6 @@ contract MYGDA is ERC721A, Ownable, ERC2981, ERC721ABurnable, ReentrancyGuard {
     function setRoyaltyToMembers(address payable newAddress) public onlyOwner {
         require(newAddress == address(0), "Royalty To Members address cannot be 0");
         royaltyToMembers = newAddress;
-    }
-
-
-
-    function tokenURI(uint256 tokenID) public view virtual override returns (string memory) {
-        require(_exists(tokenID), "ERC721Metadata: URI query for nonexistent token");
-        string memory baseURI = userLevelUp[tokenID] ? levelUpURI : postRevealURI;
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, _toString(tokenID))) : preRevealURI;
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(IERC721A, ERC721A, ERC2981)
-        returns (bool)
-    {
-        return
-            ERC2981.supportsInterface(interfaceId) ||
-            super.supportsInterface(interfaceId);
     }
 
 
