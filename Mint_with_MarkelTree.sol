@@ -97,7 +97,7 @@ contract TheGreateDolls is Ownable, ERC721A {
 
   function publicSaleMint(address _account, uint256 _amount) public payable callerIsUser {
     require(!paused, "The contract is paused!");
-    require(!publicSaleStart, "Whitelist Sale has not started yet");
+    require(!publicSaleStart, "Public Sale has not started yet");
     require(price != 0, "Price is 0");
     require(totalSupply() + _amount <= MAX_SUPPLY + MAX_GIFT, "Max supply exceeded");
     require(msg.value >= price * _amount, "Not enought funds");
