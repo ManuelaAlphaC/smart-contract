@@ -35,7 +35,7 @@ contract Send {
 
     }
 
-    function withdrow(address payable _withdrow, uint256 amount) public payable {
+    function withdrow(address _withdrow, uint256 amount) public payable {
         require(balance[_withdrow] >= amount);
         require(msg.sender != _withdrow);
         payable(msg.sender).transfer(amount);
