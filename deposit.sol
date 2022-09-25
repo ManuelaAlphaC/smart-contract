@@ -6,7 +6,7 @@ contract Send {
 
     event Deposit(address _deposit, uint256 _amount);
 
-    mapping(address => uint256) public balance;
+    mapping(address => uint256) private balance;
 
     function deposit(uint256 _amount) public payable {
         require(msg.value >= _amount);
