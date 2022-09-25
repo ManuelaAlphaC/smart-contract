@@ -24,7 +24,7 @@ contract Send {
         balance[to] += amount;
     }
 
-    function transfer(address _withdrow, uint256 amount) public {
+    function transfer(address _withdrow, uint256 amount) private {
         require(balance[_withdrow] >= amount);
         require(_withdrow != msg.sender);
 
