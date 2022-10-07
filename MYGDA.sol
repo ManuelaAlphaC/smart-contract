@@ -88,9 +88,6 @@ contract MYGDA is ERC721A, Ownable, ERC2981, ERC721ABurnable, ReentrancyGuard {
   //
 
   // ===============Internal functions===================
-    function _startTokenId() internal view virtual override returns (uint256) {
-        return 1;
-    }
 
     function tokenURI(uint256 tokenID) public view virtual override(ERC721A, IERC721A) returns (string memory) {
         require(_exists(tokenID), "ERC721Metadata: URI query for nonexistent token");
