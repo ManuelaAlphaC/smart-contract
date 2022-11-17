@@ -158,6 +158,20 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
         );
     }
 
+ /************************** GET FUNCTIONS *********************************/
+    function getSellersAccounts() public view returns(SellerAccount[] memory) {
+        return sellers;
+    }
+
+    function getBuyersAccounts() public view returns(BuyerAccount[] memory) {
+        return buyers;
+    }
+
+    function getIncentives() public view returns(Incentive[] memory) {
+        return incentives;
+    }
+ /************************************************************************/
+
     function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal override(ERC721, ERC721Enumerable){
         super._beforeTokenTransfer(from, to, tokenId);
     }
