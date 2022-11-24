@@ -139,12 +139,11 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
 
     constructor() ERC721("Incentive", "V2"){}
 
-/*
     modifier onlySellers {
         require(_onlySellers[msg.sender]);
         _;
     }
-*/
+
   /******************* SELLER *************************/
     function createSellerProfile(
         string memory name,
@@ -176,7 +175,7 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
         uint256 price,
         uint256 discount,
         address creator
-    ) public {
+    ) public onlySellers {
         uint256 IdIncentive = _tokenIdCounter.current();
         uint256 newprice = price - (price * (discount/100));
         uint256 save = price * (discount/100);
@@ -204,7 +203,7 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
         string memory incentiveURI,
         uint256 price,
         address creator
-    ) public {
+    ) public onlySellers {
         uint256 IdIncentive = _tokenIdCounter.current();
         incentives.push(Incentive(name, description, incentiveURI, price, IdIncentive, creator));
         _tokenIdCounter.increment();
