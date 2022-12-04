@@ -12,9 +12,12 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
 
-    mapping(address => SellerAccount[]) public _sellers;
-    mapping(address => BuyerAccount[]) public _buyers;
-    mapping(uint256 => specialIncentive[]) public _incentives;
+    uint256 comments;
+
+    mapping(address => SellerAccount) public _sellers;
+    mapping(address => BuyerAccount) public _buyers;
+    mapping(uint256 => specialIncentive) public _incentives;
+    mapping(address => uint256) public commentsPerBuyer;
 
     mapping(address => bool) public _onlySellers;
 
@@ -54,6 +57,13 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
         string description,
         string incentiveURI,
         uint256 price
+    );
+
+    event NewComment(
+        address indexed from,
+        uint256 tokenId,
+        string _comment,
+        uint256 timestamp
     );
  /************************************** STRUCTS *******************************************/
 
@@ -131,11 +141,19 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
         address creator;
     }
 
+    struct CommentIncentive{
+        address from;
+        uint256 tokenId;
+        string _comment;
+        uint256 timestamp;
+    }
+
 /******************************** ARRAYS *************************************/
-    SellerAccount[] public sellers;
-    BuyerAccount[] public buyers;
-    specialIncentive[] public specialIncentives;
-    Incentive[] public incentives;
+    SellerAccount[] sellers;
+    BuyerAccount[] buyers;
+    specialIncentive[] specialIncentives;
+    Incentive[] incentives;
+    CommentIncentive[] allComments;
 
     constructor() ERC721("Incentive", "V2"){}
 
@@ -242,6 +260,22 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
         );
     }
 
+    function WriteComment(
+        string memory _myComment,
+        uint256 tokenId
+        ) public {
+        allComments.push(CommentIncentive(msg.sender, tokenId, _myComment, block.timestamp));
+        comments ++;
+        commentsPerBuyer[msg.sender] ++;
+
+        emit NewComment(
+            msg.sender,
+            tokenId,
+            _myComment,
+            block.timestamp
+        );
+    }
+
  /************************** GET FUNCTIONS *********************************/
     function getSellersAccounts() public view returns(SellerAccount[] memory) {
         return sellers;
@@ -251,8 +285,20 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
         return buyers;
     }
 
-    function getIncentives() public view returns(specialIncentive[] memory) {
+    function getIncentives() public view returns(Incentive[] memory) {
+        return incentives;
+    }
+
+    function getSpecialIncentives() public view returns(specialIncentive[] memory) {
         return specialIncentives;
+    }
+
+    function getAllComments() public view returns(CommentIncentive[] memory){
+        return allComments;
+    }
+
+    function getTotalComments() public view returns(uint256) {
+        return comments;
     }
 
   /***************************************************************************/
