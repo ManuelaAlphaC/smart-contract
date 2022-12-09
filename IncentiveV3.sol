@@ -14,13 +14,13 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
 
     uint256 comments;
 
-    mapping(address => SellerAccount) public _sellers;  // restituisce tutte le informazioni di un seller
-    mapping(address => BuyerAccount) public _buyers;  // restituisce tutte le informazioni di un buyer
-    mapping(uint256 => specialIncentive) public _specilaIncentives;  // restituisce tutte le informazioni di uno specifico specialIncentive
-    mapping(uint256 => Incentive) public _incentive;  // restituisce tutte le informazioni di uno specifico Incentive
-    mapping(address => uint256) public commentsPerBuyer;  // restituisce il numero di commenti lasciati da un utente specifico
-    mapping(address => bool) public _isSeller;  // restituisce TRUE se l'address è di prorietà del Seller
-    mapping(address => bool) public _isBuyer;  // restituisce TRUE se l'address è di prorietà del Buyer
+    mapping(address => SellerAccount) public _sellers;  // returns all the information of a seller
+    mapping(address => BuyerAccount) public _buyers;  // returns all information about a buyer
+    mapping(uint256 => specialIncentive) public _specilaIncentives;  // returns all the information of a specific specialIncentive
+    mapping(uint256 => Incentive) public _incentive;  // returns all the information of a specific Incentive
+    mapping(address => uint256) public commentsPerBuyer;  // returns the number of comments left by a specific user
+    mapping(address => bool) public _isSeller;  // returns TRUE if the address is owned by the Seller
+    mapping(address => bool) public _isBuyer;  // returns TRUE if the address is owned by the Buyer
 
 
 /************************************* EVENTS **********************************/
@@ -61,41 +61,41 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
     );
 /************************************** STRUCTS *******************************************/
 
- /*
-   * @notice i dati necessari per creare un'account seller
-   *
-   * @param profileImage --> Immagine profilo dell'utente
-   * @param seller --> L'address del proprietario di questo profilo, coincide con il mitente 
-   * @param IdAccount --> L'id dell'account appena creato, viene impostato automaticamente
-  **/ 
+ /**
+  * @notice The data needed to create a seller account
+  * 
+  * @param profileImage Profile image of the Seller
+  * @param seller The address of the owner of this profile coincides with the sender
+  * @param IdAccount The account Id
+  */
     struct SellerAccount{
         string profileImage;
         address seller;
         uint256 IdAccount;
     }
 
- /*
-   * @notice i dati necessari per creare un'account buyer
-   *
-   * @param profileImage --> Immagine profilo dell'utente
-   * @param buyer --> L'address del proprietario di questo profilo, coincide con il mitente 
-   * @param IdAccount --> L'id dell'account appena creato, viene impostato automaticamente
-  **/ 
+ /**
+  * @notice The data needed to create a seller account
+  * 
+  * @param profileImage Profile image of the Buyer
+  * @param buyer The address of the owner of this profile coincides with the sender
+  * @param IdAccount The account Id
+  */
     struct BuyerAccount{
         string profileImage;
         address buyer;
         uint256 IdAccount;
     }
 
- /*
-   * @notice incentivo al quale si applica uno sconto
-   *
-   * @param incentiveURI --> Immagine/video che rappresenta il piato
-   * @param price --> Il prezzo iniziale del piato
-   * @param discount --> Lo sconto da applicare al piato, senza percentuale 20 = 20%
-   * @param IdIncentive --> L'id dell'incentivo appena creato, viene impostato automaticamente
-   * param creator --> L'address del account seller e deve coincidere con il mitente
-  **/ 
+ /**
+  * @notice Incentive to which a discount is applied
+  * 
+  * @param incentiveURI Image/video representing the incentive
+  * @param price The starting price of the incentive
+  * @param discount The discount to be applied to the incentive, without percentage 20 = 20%
+  * @param IdIncentive The account Id
+  * @param creator The address of the seller account and must coincide with the sender
+  */
     struct specialIncentive{
         string incentiveURI;
         uint256 price;
@@ -104,16 +104,14 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
         address creator;
     }
 
-/*
-   * @notice incentivo con prezzo fisso
-   *
-   * @param name --> Il nome del piato
-   * @param description --> descrizione del piato
-   * @param incentiveURI --> Immagine/video che rappresenta il piato
-   * @param price --> Il prezzo fisso del piato
-   * @param IdIncentive --> L'id dell'incentivo appena creato, viene impostato automaticamente
-   * param creator --> L'address del account seller e deve coincidere con il mitente
-  **/
+ /**
+  * @notice Incentive with fixed price
+  * 
+  * @param incentiveURI Image/video representing the incentive
+  * @param price The fixed price of the incentive
+  * @param IdIncentive The account Id
+  * @param creator The address of the creator account and must coincide with the seller
+  */
     struct Incentive {
         string incentiveURI;
         uint256 price;
@@ -121,14 +119,14 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
         address creator;
     }
 
- /*
-   * @notice Commenti lasciati dai Buyers
-   *
-   * @param from --> L'address di chi scrive il commento
-   * @param tokenId --> Il tokenId del incentivo che si vuole commentare
-   * @param _comment --> Il contenuto del commento
-   * @param timestamp --> L'ora in cui è stato rilasciato il commento
-  **/
+ /**
+  * @notice Comments left by Buyers
+  * 
+  * @param from The address of who writes the comment
+  * @param tokenId The tokenId of the incentive you want to comment
+  * @param _comment The content of the comment
+  * @param timestamp The time the comment was released
+  */
 
     struct CommentIncentive{
         address from;
@@ -138,13 +136,13 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
     }
 
 /******************************** ARRAYS *************************************/
-    SellerAccount[] sellers; // restituisce tutti gli account Seller
-    BuyerAccount[] buyers; // restituisce tutti gli account Buyer
-    specialIncentive[] specialIncentives; // restituisce tutti i specialIncentive
-    Incentive[] incentives; // restituisce tutti gli incentive a prezzo fisso
-    CommentIncentive[] allComments; // restituisce tutti i commenti
+    SellerAccount[] sellers; // returns all Seller accounts
+    BuyerAccount[] buyers; // return all Buyer accounts
+    specialIncentive[] specialIncentives; // returns all specialIncentives
+    Incentive[] incentives; // returns all fixed price incentives
+    CommentIncentive[] allComments; // return all comments
 
-    constructor() ERC721("Incentive", "V3"){}
+    constructor() ERC721("Incentive", "V1"){}
 
 
   /******************* SELLER *************************/
@@ -248,32 +246,32 @@ contract incentiveV1 is ERC721, ERC721Enumerable, ERC721URIStorage {
 
  /************************** GET FUNCTIONS *********************************/
 
-  // restituisce tutti i Seller Account
+  // returns all Seller Accounts
     function getSellersAccounts() public view returns(SellerAccount[] memory) {
         return sellers;
     }
 
-  // restituisce tutti i Buyer Account
+  // return all Buyer Accounts
     function getBuyersAccounts() public view returns(BuyerAccount[] memory) {
         return buyers;
     }
 
-  // restituisce tutti gli Incentivi a prezzo fisso
+  // returns all fixed price Incentives
     function getIncentives() public view returns(Incentive[] memory) {
         return incentives;
     }
   
-  // restituisce tutti gli Incentivi scontati
+  // returns all discounted Incentives
     function getSpecialIncentives() public view returns(specialIncentive[] memory) {
         return specialIncentives;
     }
   
-  // restituisce tutti i commenti
+  // return all comments
     function getAllComments() public view returns(CommentIncentive[] memory){
         return allComments;
     }
 
-  // restituisce il totale (numero) dei commenti
+  // return the total (number) of comments
     function getTotalComments() public view returns(uint256) {
         return comments;
     }
